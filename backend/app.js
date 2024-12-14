@@ -23,7 +23,7 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true, parameterLimit: 50000 }));
 
 // Resimlerin yüklendiği dizini statik olarak sunun
-app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads/resized')));
 
 app.use(cors(corsOptions));
 
