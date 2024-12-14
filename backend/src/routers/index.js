@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const multer = require("multer");
-const upload = require("../middlewares/lib/upload");
+const { upload, resizeImage } = require("../middlewares/lib/upload");
 const APIError = require("../utils/errors");
 const Response = require("../utils/response");
 
@@ -16,16 +16,12 @@ router.use("/product", product);
 router.use("/brand", brand);
 router.use("/product-type",productType);
 
-router.post("/upload", function (req, res) {
-  upload(req, res, function (err) {
-    if (err instanceof multer.MulterError)
-      throw new APIError(
-        "Resim Yüklenirken Multer Kaynaklı Hata Çıktı : ",
-        err
-      );
-    else if (err) throw new APIError("Resim Yüklenirken Hata Çıktı : ", err);
-    else return new Response(req.savedImages, "Yükleme Başarılı").success(res);
-  });
+router.post("/upload", upload.single('image'), resizeImage, function (req, res) {
+  if (req.file) {
+    return new Response(req.file, "Yükleme Başarılı").success(res);
+  } else {
+    throw new APIError("Resim Yüklenirken Hata Çıktı");
+  }
 });
 
 module.exports = router;

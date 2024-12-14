@@ -1,34 +1,53 @@
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
+const multer = require('multer');
+const sharp = require('sharp');
+const path = require('path');
+const fs = require('fs');
 
-const fileFilter = (req, file, cb) => {
-    const allowedMimeTypes = ["image/jpg", "image/gif", "image/jpeg", "image/png"];
-
-    if (!allowedMimeTypes.includes(file.mimetype)) {
-        cb(new Error("Bu Resim Tipi Desteklenmemektedir. Lütfen Farklı Bir Resim Seçiniz!"), false);
-    }
-    cb(null, true);
-};
-
+// Multer ayarları
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const rootDir = path.dirname(require.main.filename);
-        fs.mkdirSync(path.join(rootDir, "/public/uploads"), { recursive: true });
-        cb(null, path.join(rootDir, "/public/uploads"));
-    },
-    filename: function (req, file, cb) {
-        const extension = file.mimetype.split("/")[1];
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const url = `image_${uniqueSuffix}.${extension}`;
-
-        if (!req.savedImages) req.savedImages = [];
-        req.savedImages.push(url);
-
-        cb(null, url);
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, '../uploads');
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
     }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
 });
 
-const upload = multer({ storage, fileFilter }).array("images", 20); // 20 resim yükleme sınırı
+const upload = multer({ storage: storage });
 
-module.exports = upload;
+// Resmi yeniden boyutlandırma middleware'i
+const resizeImage = async (req, res, next) => {
+  if (!req.file) return next();
+
+  const filePath = req.file.path;
+  const outputFilePath = path.join(path.dirname(filePath), 'resized-' + path.basename(filePath));
+
+  try {
+    await sharp(filePath)
+      .resize(640, 1280, {
+        fit: sharp.fit.cover,
+        withoutEnlargement: true
+      })
+      .toFile(outputFilePath);
+
+    // Orijinal dosyayı silin ve yeniden boyutlandırılmış dosyayı kullanın
+    fs.unlinkSync(filePath);
+    req.file.path = outputFilePath;
+    req.file.filename = 'resized-' + req.file.filename;
+
+    next();
+  } catch (error) {
+    console.error('Resim yeniden boyutlandırma hatası:', error);
+    res.status(500).json({ error: 'Resim yeniden boyutlandırma hatası' });
+  }
+};
+
+module.exports = {
+  upload,
+  resizeImage
+};
