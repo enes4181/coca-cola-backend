@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 
-mongoose.connect(process.env.DB_URL)
+const dbUrl = process.env.DB_URL;
+
+console.log("dbUrl : ", dbUrl);
+mongoose.connect(dbUrl)
     .then(() => {
         console.log("Veritabanına Başarıyla Bağlandı");
     })
