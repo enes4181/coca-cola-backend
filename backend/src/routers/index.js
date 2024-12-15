@@ -1,5 +1,8 @@
 const router = require("express").Router();
-const {upload, resizeImages} = require("../middlewares/lib/upload");
+const multer = require("multer");
+const upload = require("../middlewares/lib/upload");
+const APIError = require("../utils/errors");
+const Response = require("../utils/response");
 
 const auth = require("../app/auth/router");
 const user = require("../app/users/router");
@@ -13,11 +16,16 @@ router.use("/product", product);
 router.use("/brand", brand);
 router.use("/product-type",productType);
 
-router.post("/upload", upload, resizeImages, (req, res) => {
-    res.status(200).json({
-      message: "Resimler başarıyla yüklendi ve yeniden boyutlandırıldı!",
-      resizedImages: req.savedImages, // Yeniden boyutlandırılmış dosyaların yolları
-    });
+router.post("/upload", function (req, res) {
+  upload(req, res, function (err) {
+    if (err instanceof multer.MulterError)
+      throw new APIError(
+        "Resim Yüklenirken Multer Kaynaklı Hata Çıktı : ",
+        err
+      );
+    else if (err) throw new APIError("Resim Yüklenirken Hata Çıktı : ", err);
+    else return new Response(req.savedImages, "Yükleme Başarılı").success(res);
   });
+});
 
 module.exports = router;
