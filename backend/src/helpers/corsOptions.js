@@ -1,4 +1,4 @@
-const whiteList = ["http://localhost:3000", "https://coca-cola-products.netlify.app"]
+const whiteList = ["http://http://141.147.53.27:3000"]
 // daha fazla varsa "", ile devam ettir
 
 const corsOptions = (req, callback) => {
