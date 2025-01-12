@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Kayıt Doğrulama</title>
+  <style>
+    .container {
+      font-family: Arial, sans-serif;
+      margin: 0 auto;
+      padding: 20px;
+      max-width: 600px;
+      background: linear-gradient(to bottom, #f9f9f9, #e0e0e0); /* Hafif degrade arka plan */
+      border: 1px solid #ddd;
+    }
+    .header {
+      text-align: center;
+      padding: 10px 0;
+      background-color: #ADD8E6; /* Kullanıcı dostu açık mavi renk */
+      color: black;
+    }
+    .content {
+      padding: 20px;
+    }
+    .footer {
+      text-align: center;
+      padding: 10px 0;
+      font-size: 12px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Kayıt Doğrulama</h1>
+    </div>
+    <div class="content">
+      <p>Merhaba,</p>
+      <p>Kayıt işleminizi tamamlamak için aşağıdaki doğrulama kodunu kullanın:</p>
+      <h2>{{verificationCode}}</h2>
+      <p>Bu kod 15 dakika boyunca geçerlidir.</p>
+      <p>Teşekkürler,</p>
+    </div>
+    <div class="footer">
+      <p>&copy; 2025 The Coca-Cola Company. Tüm hakları saklıdır.</p>
+    </div>
+  </div>
+</body>
+</html>

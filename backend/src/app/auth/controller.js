@@ -8,7 +8,7 @@ const {
   decodedTemporaryToken,
 } = require("../../middlewares/auth");
 const crypto = require("crypto");
-const sendEmail = require("../../utils/sendMail");
+const { sendEmail, getEmailTemplate } = require("../../utils/sendMail");
 const moment = require("moment");
 
 const login = async (req, res) => {
@@ -49,12 +49,13 @@ const register = async (req, res) => {
       .format("YYYY-MM-DD HH:mm:ss"),
   };
 
-//  Doğrulama kodunu e-posta ile gönderin
+  // Doğrulama kodunu e-posta ile gönderin
+  const emailTemplate = getEmailTemplate('verification', { verificationCode });
   await sendEmail({
     from: process.env.EMAIL_USER,
     to: email,
     subject: "Kayıt Doğrulama",
-    text: `Kayıt Doğrulama Kodunuz ${verificationCode}`,
+    html: emailTemplate,
   });
 
   // Geçici kullanıcı bilgilerini yanıt olarak gönderin
@@ -120,12 +121,13 @@ const forgetPassword = async (req, res) => {
 
   const resetCode = crypto.randomBytes(3).toString("hex");
 
-
+  // Şifre sıfırlama kodunu e-posta ile gönderin
+  const emailTemplate = getEmailTemplate('resetPassword', { resetCode });
   await sendEmail({
     from: process.env.EMAIL_USER,
     to: userInfo.email,
     subject: "Şifre Sıfırlama",
-    text: `Şifre Sıfırlama Kodunuz ${resetCode}`,
+    html: emailTemplate,
   });
 
   await user.updateOne(
@@ -156,7 +158,6 @@ const resetCodeCheck = async (req, res) => {
   const nowTime = moment(new Date());
 
   const timeDiff = dbTime.diff(nowTime, "minutes");
-
 
   if (timeDiff <= 0 || userInfo.reset.code !== code) {
     throw new APIError("Geçersiz Kod", 401);
