@@ -1,4 +1,4 @@
-const whiteList = ["http://http://141.147.53.27:3000"]
+const whiteList = ["http://141.147.53.27:3000"]
 // daha fazla varsa "", ile devam ettir
 
 const corsOptions = (req, callback) => {
